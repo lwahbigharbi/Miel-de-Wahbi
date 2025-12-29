@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Sitemap: https://votresite.com/sitemap.xml
+
+# PWA
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
