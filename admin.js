@@ -1,6 +1,6 @@
 /**
  * PANNEAU D'ADMINISTRATION - MIEL DE WAHBI
- * Gestion facile des produits sans toucher au code
+ * Version corrigée avec synchronisation automatique
  */
 
 // ============= DONNÉES PAR DÉFAUT =============
@@ -99,7 +99,6 @@ function showDashboard() {
 
 // ============= GESTION DES ONGLETS =============
 function switchTab(tabName) {
-    // Désactiver tous les onglets
     document.querySelectorAll('.tab').forEach(tab => {
         tab.classList.remove('active');
     });
@@ -107,7 +106,6 @@ function switchTab(tabName) {
         content.classList.remove('active');
     });
     
-    // Activer l'onglet sélectionné
     event.target.classList.add('active');
     document.getElementById(tabName + 'Tab').classList.add('active');
 }
@@ -173,19 +171,17 @@ function addProduct(event) {
     products.push(newProduct);
     saveData();
     
-    // Réinitialiser le formulaire
     event.target.reset();
+    showSuccess('✅ Produit ajouté avec succès ! Rechargez index.html pour voir les changements.');
     
-    // Afficher message de succès
-    showSuccess('✅ Produit ajouté avec succès !');
-    
-    // Revenir à l'onglet produits
     switchTab('products');
     document.querySelector('.tab').click();
     
     renderProducts();
     updateStats();
-    exportToMainSite();
+    
+    // Déclencher l'événement de mise à jour
+    notifyMainSite();
 }
 
 function editProduct(id) {
@@ -216,8 +212,10 @@ function saveEdit(event) {
         saveData();
         renderProducts();
         closeEditModal();
-        showSuccess('✅ Produit modifié avec succès !');
-        exportToMainSite();
+        showSuccess('✅ Produit modifié avec succès ! Rechargez index.html pour voir les changements.');
+        
+        // Déclencher l'événement de mise à jour
+        notifyMainSite();
     }
 }
 
@@ -230,8 +228,10 @@ function deleteProduct(id) {
         saveData();
         renderProducts();
         updateStats();
-        showSuccess('✅ Produit supprimé avec succès !');
-        exportToMainSite();
+        showSuccess('✅ Produit supprimé avec succès ! Rechargez index.html pour voir les changements.');
+        
+        // Déclencher l'événement de mise à jour
+        notifyMainSite();
     }
 }
 
@@ -255,8 +255,10 @@ function saveSettings(event) {
     }
     
     saveData();
-    showSuccess('✅ Paramètres enregistrés avec succès !');
-    exportToMainSite();
+    showSuccess('✅ Paramètres enregistrés avec succès ! Rechargez index.html pour voir les changements.');
+    
+    // Déclencher l'événement de mise à jour
+    notifyMainSite();
 }
 
 // ============= STATISTIQUES =============
@@ -269,8 +271,13 @@ function saveData() {
     try {
         localStorage.setItem('honeyProducts', JSON.stringify(products));
         localStorage.setItem('honeySettings', JSON.stringify(settings));
+        console.log('💾 Données sauvegardées:', {
+            products: products.length,
+            settings: settings
+        });
     } catch (e) {
-        console.error('Erreur de sauvegarde:', e);
+        console.error('❌ Erreur de sauvegarde:', e);
+        alert('Erreur lors de la sauvegarde. Veuillez réessayer.');
     }
 }
 
@@ -281,75 +288,28 @@ function loadData() {
         
         if (savedProducts) {
             products = JSON.parse(savedProducts);
+            console.log('✅ Produits chargés:', products.length);
         }
         
         if (savedSettings) {
             settings = JSON.parse(savedSettings);
+            console.log('✅ Paramètres chargés');
         }
     } catch (e) {
-        console.error('Erreur de chargement:', e);
+        console.error('❌ Erreur de chargement:', e);
     }
 }
 
-// ============= EXPORT VERS LE SITE PRINCIPAL =============
-function exportToMainSite() {
-    // Générer le HTML des produits
-    const productsHTML = products.map(product => `
-            <div class="product-card" data-product="${product.name}" data-aos="fade-up">
-                <div class="product-image">
-                    <img src="images/placeholder.jpg" alt="${product.name}">
-                    <div class="product-overlay">
-                        <span class="quick-view">Vue rapide</span>
-                    </div>
-                    <span class="product-badge">${product.inStock ? 'En Stock' : 'Épuisé'}</span>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">${product.name}</h3>
-                    <p class="product-description">${product.description}</p>
-                    <div class="product-price">
-                        <span class="price-value">${product.price1kg}</span>
-                        <span class="price-currency">DT / kg</span>
-                    </div>
-                    
-                    <div class="size-selector">
-                        <button class="size-btn active" data-size="500g" data-price="${product.price500g}">
-                            <span class="size-label">500g</span>
-                            <span class="size-price">${product.price500g} DT</span>
-                        </button>
-                        <button class="size-btn" data-size="1kg" data-price="${product.price1kg}">
-                            <span class="size-label">1kg</span>
-                            <span class="size-price">${product.price1kg} DT</span>
-                        </button>
-                    </div>
-
-                    <div class="quantity-selector">
-                        <button class="quantity-btn" onclick="decreaseQty(this)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M5 12h14" stroke-width="2"/>
-                            </svg>
-                        </button>
-                        <span class="quantity-value">1</span>
-                        <button class="quantity-btn" onclick="increaseQty(this)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M12 5v14M5 12h14" stroke-width="2"/>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <button class="add-to-cart-btn" onclick="addToCart(this)">
-                        <svg class="cart-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M9 2L7 6M17 2L19 6M3 6H21L19 20H5L3 6Z" stroke-width="2"/>
-                        </svg>
-                        <span>Ajouter au panier</span>
-                    </button>
-                </div>
-            </div>
-    `).join('\n');
-
-    // Sauvegarder dans localStorage pour que index.html puisse le lire
-    localStorage.setItem('generatedProductsHTML', productsHTML);
+// ============= NOTIFICATION AU SITE PRINCIPAL =============
+function notifyMainSite() {
+    // Créer un événement personnalisé pour notifier le site principal
+    localStorage.setItem('lastUpdate', Date.now().toString());
     
-    console.log('✅ Produits exportés vers le site principal !');
+    console.log('🔔 Notification envoyée au site principal');
+    console.log('📊 Données actuelles:', {
+        products: products.length,
+        settings: settings
+    });
 }
 
 // ============= MESSAGES =============
@@ -358,25 +318,22 @@ function showSuccess(message) {
     successDiv.textContent = message;
     successDiv.style.display = 'block';
     
+    // Scroll vers le message
+    successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
     setTimeout(() => {
         successDiv.style.display = 'none';
-    }, 4000);
+    }, 6000);
 }
 
-// ============= TÉLÉCHARGEMENT DES DONNÉES =============
-function downloadData() {
-    const data = {
-        products: products,
-        settings: settings
-    };
-    
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataBlob = new Blob([dataStr], {type: 'application/json'});
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'miel-de-wahbi-backup.json';
-    link.click();
+// ============= BOUTON DE PRÉVISUALISATION =============
+function previewChanges() {
+    // Ouvrir index.html dans un nouvel onglet
+    window.open('index.html', '_blank');
 }
 
 console.log('🍯 Panneau d\'administration chargé !');
+console.log('📊 État actuel:', {
+    products: products.length,
+    settings: settings
+});
