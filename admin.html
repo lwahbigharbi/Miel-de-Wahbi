@@ -5,45 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Miel de Wahbi</title>
-        <!-- Remplacez la section admin-header dans admin.html par ceci : -->
-
-    <div class="admin-header">
-        <h1>🍯 Panneau d'Administration</h1>
-        <div style="display: flex; gap: 1rem; align-items: center;">
-            <button class="logout-btn" onclick="previewChanges()" style="background: #10b981;">
-                👁️ Prévisualiser le Site
-            </button>
-            <button class="logout-btn" onclick="logout()">
-                🚪 Déconnexion
-            </button>
-        </div>
-    </div>
-    
-    <!-- Ajoutez aussi ce style dans la section <style> de admin.html : -->
-    <style>
-    .preview-instructions {
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
-        text-align: center;
-        font-weight: 600;
-        animation: pulse 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-    }
-    </style>
-    
-    <!-- Ajoutez cet avertissement après le div.stats-grid dans admin.html : -->
-    
-    <div class="preview-instructions">
-        ⚠️ <strong>IMPORTANT:</strong> Après chaque modification, cliquez sur "👁️ Prévisualiser le Site" 
-        ou rechargez <code>index.html</code> (Ctrl+F5) pour voir les changements !
-    </div>  
     <style>
         * {
             margin: 0;
@@ -489,12 +450,45 @@
 
     <!-- Admin Dashboard -->
     <div class="admin-dashboard" id="adminDashboard">
-        <div class="admin-header">
-            <h1>🍯 Panneau d'Administration</h1>
-            <button class="logout-btn" onclick="logout()">
-                🚪 Déconnexion
-            </button>
-        </div>
+               <!-- Remplacez la section admin-header dans admin.html par ceci : -->
+  
+      <div class="admin-header">
+          <h1>🍯 Panneau d'Administration</h1>
+          <div style="display: flex; gap: 1rem; align-items: center;">
+              <button class="logout-btn" onclick="previewChanges()" style="background: #10b981;">
+                  👁️ Prévisualiser le Site
+              </button>
+              <button class="logout-btn" onclick="logout()">
+                  🚪 Déconnexion
+              </button>
+          </div>
+      </div>
+      
+      <!-- Ajoutez aussi ce style dans la section <style> de admin.html : -->
+      <style>
+      .preview-instructions {
+          background: linear-gradient(135deg, #3b82f6, #2563eb);
+          color: white;
+          padding: 1rem 2rem;
+          border-radius: 12px;
+          margin-bottom: 2rem;
+          text-align: center;
+          font-weight: 600;
+          animation: pulse 2s ease-in-out infinite;
+      }
+      
+      @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.02); }
+      }
+      </style>
+      
+      <!-- Ajoutez cet avertissement après le div.stats-grid dans admin.html : -->
+      
+      <div class="preview-instructions">
+          ⚠️ <strong>IMPORTANT:</strong> Après chaque modification, cliquez sur "👁️ Prévisualiser le Site" 
+          ou rechargez <code>index.html</code> (Ctrl+F5) pour voir les changements !
+      </div>  
 
         <div class="admin-content">
             <!-- Stats -->
