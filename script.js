@@ -19,7 +19,155 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
     attachEventListeners();
 });
+/**
+ * ========================================
+ * SYNCHRONISATION AVEC LE PANNEAU ADMIN
+ * ========================================
+ */
 
+// Cette fonction charge les produits depuis le panneau admin
+function loadProductsFromAdmin() {
+    try {
+        const savedProducts = localStorage.getItem('honeyProducts');
+        const savedSettings = localStorage.getItem('honeySettings');
+        
+        if (savedProducts) {
+            const products = JSON.parse(savedProducts);
+            console.log('✅ Produits chargés depuis admin:', products.length);
+            renderProductsFromAdmin(products);
+        }
+        
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            console.log('✅ Paramètres chargés depuis admin');
+            applySettings(settings);
+        }
+    } catch (e) {
+        console.warn('❌ Erreur de chargement des produits admin:', e);
+    }
+}
+
+// Fonction pour afficher les produits du panneau admin
+function renderProductsFromAdmin(products) {
+    const productsGrid = document.querySelector('.products-grid');
+    if (!productsGrid) return;
+    
+    // Vider la grille actuelle
+    productsGrid.innerHTML = '';
+    
+    // Générer le HTML pour chaque produit
+    products.forEach((product, index) => {
+        const productHTML = `
+            <div class="product-card" data-product="${product.name}" data-aos="fade-up" data-aos-delay="${(index + 1) * 100}">
+                <div class="product-image">
+                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #ffd89b 0%, #f4a623 100%); display: flex; align-items: center; justify-content: center; font-size: 5rem;">
+                        ${product.emoji || '🍯'}
+                    </div>
+                    <div class="product-overlay">
+                        <span class="quick-view">Vue rapide</span>
+                    </div>
+                    <span class="product-badge">${product.inStock ? 'En Stock' : 'Épuisé'}</span>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-description">${product.description}</p>
+                    <div class="product-price">
+                        <span class="price-value">${product.price1kg}</span>
+                        <span class="price-currency">DT / kg</span>
+                    </div>
+                    
+                    <div class="size-selector">
+                        <button class="size-btn active" data-size="500g" data-price="${product.price500g}">
+                            <span class="size-label">500g</span>
+                            <span class="size-price">${product.price500g} DT</span>
+                        </button>
+                        <button class="size-btn" data-size="1kg" data-price="${product.price1kg}">
+                            <span class="size-label">1kg</span>
+                            <span class="size-price">${product.price1kg} DT</span>
+                        </button>
+                    </div>
+
+                    <div class="quantity-selector">
+                        <button class="quantity-btn" onclick="decreaseQty(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M5 12h14" stroke-width="2"/>
+                            </svg>
+                        </button>
+                        <span class="quantity-value">1</span>
+                        <button class="quantity-btn" onclick="increaseQty(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M12 5v14M5 12h14" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <button class="add-to-cart-btn" onclick="addToCart(this)">
+                        <svg class="cart-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 2L7 6M17 2L19 6M3 6H21L19 20H5L3 6Z" stroke-width="2"/>
+                        </svg>
+                        <span>Ajouter au panier</span>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        productsGrid.insertAdjacentHTML('beforeend', productHTML);
+    });
+    
+    // Réattacher les event listeners pour les boutons de taille
+    document.querySelectorAll('.size-btn').forEach(btn => {
+        btn.addEventListener('click', handleSizeSelection);
+    });
+    
+    // Réinitialiser AOS si disponible
+    if (typeof AOS !== 'undefined') {
+        AOS.refresh();
+    }
+}
+
+// Fonction pour appliquer les paramètres du panneau admin
+function applySettings(settings) {
+    // Mettre à jour le numéro de téléphone dans le footer
+    const phoneElements = document.querySelectorAll('footer p');
+    phoneElements.forEach(el => {
+        if (el.textContent.includes('📞')) {
+            el.innerHTML = `📞 ${settings.phone}`;
+        }
+        if (el.textContent.includes('📍')) {
+            el.innerHTML = `📍 ${settings.address}`;
+        }
+    });
+    
+    // Mettre à jour le lien Facebook
+    const facebookLinks = document.querySelectorAll('a[href*="facebook"], a[href*="m.me"]');
+    facebookLinks.forEach(link => {
+        if (settings.facebook) {
+            link.href = settings.facebook;
+        }
+    });
+    
+    // Mettre à jour les liens WhatsApp
+    window.WHATSAPP_NUMBER = settings.phone.replace(/\s/g, '');
+    
+    console.log('✅ Paramètres appliqués:', settings);
+}
+
+// Charger les produits au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🔄 Chargement des produits depuis le panneau admin...');
+    loadProductsFromAdmin();
+    
+    // Écouter les changements de localStorage (si un autre onglet modifie les produits)
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'honeyProducts' || e.key === 'honeySettings') {
+            console.log('🔄 Mise à jour détectée depuis le panneau admin !');
+            location.reload();
+        }
+    });
+});
+
+// Exporter pour utilisation globale
+window.loadProductsFromAdmin = loadProductsFromAdmin;
 // ============= APP INITIALIZATION =============
 function initializeApp() {
     console.log('🍯 Miel de Wahbi - App initialized');
